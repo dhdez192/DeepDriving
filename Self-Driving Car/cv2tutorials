@@ -1,0 +1,62 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Aug 29 09:13:54 2019
+
+@author: david
+"""
+
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+def canny(image):
+       # converts RGB valuues to GrayScale
+       gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+       
+       # Smoothens the image for noise reduction
+       blur = cv2.GaussianBlur(gray, (5,5), 0)
+       
+       # Using Canny to only detect gradient changes (lanes)
+       canny = cv2.Canny(blur, 50, 150) 
+       
+       return canny
+
+ # function responsible for looking at our side of the road
+def region_of_interest(image):
+       height = image.shape[0]
+       polygon = np.array([[(200, height), (1100, height), (550, 250)]])
+       # Creates a masked triangle of a region of interest
+       mask = np.zeros_like(image)
+       cv2.fillPoly(mask, polygon, 255)
+       # only highlights the point of interest with comparison to the original
+       # image
+       masked_image = bitwise_and(image, mask)
+       return mask_image
+
+# function displays line for the lanes
+def display_lines(image,lines):
+       line_image = np.zeros_like(image)
+       if lines is not None:
+              for line in lines:
+                     x1, y1, x2, y2 = line.reshape(4)
+                     cv2.line(line_image,(x1, y1),(x2, y2),(255,0,0), 10)
+       return line_image
+       
+       
+# grabs the image used for testing
+image = cv2.imread('test_image.jpg')
+
+# makes a copy of array values from image 
+lane_image = np.copy(image)
+
+canny = canny(lane_image)
+cropped_image = region_of_interest(canny)
+lines = cv2.HoughLinesP(cropped_image,2,np.pi/180, 100,np.array([]),minLineLength=40, maxLineGap=5)
+line_image = display_lines(lane_image, lines)
+
+# Display Selected image type
+cv2.imshow('results', line_image)
+cv2.waitKey(0)
+
+#plt.imshow(canny)
+#plt.show()
