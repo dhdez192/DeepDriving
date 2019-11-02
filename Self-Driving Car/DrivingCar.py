@@ -37,7 +37,7 @@ def canny(img):
     kernel = 5
     blur = cv2.GaussianBlur(gray,(kernel, kernel),0)
     canny = cv2.Canny(gray, 50, 150)
-    return canny
+    return gray
  
 def display_lines(img,lines):
     line_image = np.zeros_like(img)
